@@ -193,9 +193,19 @@ class FoodMenuView(APIView):
             return Response({"detail":"seller not found"}, status=status.HTTP_400_BAD_REQUEST)
         
         food_items = Food.objects.filter(owner = owner)
-        serializer_instance = FoodSerializer(food_items, many=True)
+        food_serializer_instance = FoodSerializer(food_items, many=True)
 
-        return Response({"seller":owner.username, "food_items":serializer_instance.data})
+        food_category = FoodCategory.objects.filter(owner = owner)
+        food_category_serializer = FoodCategorySerializer(food_category, many=True)
+
+        tables = Table.objects.filter(owner = owner)
+        tables_serializer_instance = TableSerializer(tables, many=True)
+
+        return Response({
+            "seller":owner.username,
+            "food_items":food_serializer_instance.data, 
+            "food_category":food_category_serializer.data,
+            "tables":tables_serializer_instance.data})
 
 
 
