@@ -30,6 +30,9 @@ urlpatterns = [
     path('api/foodcat/<int:pk>/', views.FoodCategoryRetrieveUpdateDestroyView.as_view()),
     path('api/food/', views.FoodCreateListView.as_view()),
     path('api/food/<int:pk>/', views.FoodRetrieveUpdateDestroyView.as_view()),
+    path('api/table/add', views.TableCreateListView.as_view()),
+    path('api/table/<int:table_id>/change/', views.TableUpdateView.as_view()),
+    path('api/table/<int:table_id>/delete/', views.TableDeleteView.as_view()),
     path('api/menu/<str:pin>/', views.FoodMenuView.as_view(), name='food_menu_api')
 
    

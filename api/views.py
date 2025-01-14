@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import CreateAPIView
-from api.serializers import UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller
+from api.serializers import UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller, TableSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import generics
-from api.models import FoodCategory, Food
+from api.models import FoodCategory, Food, Table
 from rest_framework import status
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -47,8 +47,7 @@ class SignInView(APIView):
 class FoodCategoryCreateView(APIView):
 
     authentication_classes = [authentication.BasicAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
-
+    permission_classes = [permissions.IsAuthenticated]  
 
     def get(self, request, *args, **kwargs):
 
@@ -79,6 +78,8 @@ class FoodCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
 
     serializer_class = FoodCategorySerializer
     queryset = FoodCategory.objects.all()
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]  
 
 
 class FoodCreateListView(generics.ListCreateAPIView):
@@ -109,6 +110,75 @@ class FoodRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = FoodSerializer
     queryset = Food.objects.all()
+    permission_classes = [JWTAuthentication]
+
+
+class TableCreateListView(APIView):
+    
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+    def get(self, request):
+        user = request.user
+        tables = Table.objects.filter(owner = user)
+        return Response(TableSerializer(tables, many=True).data)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        owner = user.id
+
+        table_number = request.data.get('table_number')
+        if not table_number:
+            return Response({"error": "Table number is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        table = Table.objects.create(owner = user, table_number=table_number)
+        table.save()
+        
+
+        return Response(TableSerializer(table).data, status=status.HTTP_201_CREATED)
+
+
+class TableUpdateView(APIView):
+    
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, table_id):
+        user = request.user
+        try:
+            table = Table.objects.get(id=table_id, owner = user)
+        except Table.DoesNotExist:
+            return Response({"error": "Table not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        table_number = request.data.get('table_number')
+        is_occupied = request.data.get('is_occupied')
+
+        if table_number is not None:
+            table.table_number = table_number
+        if is_occupied is not None:
+            table.is_occupied = is_occupied
+
+        table.save()
+        return Response(TableSerializer(table).data)
+
+
+class TableDeleteView(APIView):
+    
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, table_id):
+        user = request.user
+        try:
+            table = Table.objects.get(id=table_id, owner = user)
+        except Table.DoesNotExist:
+            return Response({"error": "Table not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        table.delete()
+        return Response({"message": "Table deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+
 
 
 class FoodMenuView(APIView):
@@ -126,6 +196,8 @@ class FoodMenuView(APIView):
         serializer_instance = FoodSerializer(food_items, many=True)
 
         return Response({"seller":owner.username, "food_items":serializer_instance.data})
+
+
 
 
 

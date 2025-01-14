@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from api.models import Seller,  FoodCategory, Food
+from api.models import Seller,  FoodCategory, Food, Table
 from rest_framework import serializers
 
 
@@ -77,6 +77,12 @@ class FoodSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Food name already exists")    
         return value
 
+
+class TableSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Table
+        fields = ['id', 'table_number', 'is_occupied', 'owner']
 
 
 
