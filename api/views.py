@@ -46,7 +46,7 @@ class SignInView(APIView):
 
 class FoodCategoryCreateView(APIView):
 
-    authentication_classes = [authentication.BasicAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]  
 
     def get(self, request, *args, **kwargs):
@@ -78,14 +78,14 @@ class FoodCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
 
     serializer_class = FoodCategorySerializer
     queryset = FoodCategory.objects.all()
-    authentication_classes = [authentication.BasicAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]  
 
 
 class FoodCreateListView(generics.ListCreateAPIView):
 
     serializer_class = FoodSerializer
-    authentication_classes = [authentication.BasicAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]   
 
     def get(self, request, *args, **kwargs):
