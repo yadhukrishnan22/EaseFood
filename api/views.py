@@ -90,7 +90,7 @@ class FoodCreateListView(generics.ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
 
-        qs = Food.objects.filter(seller_obj = request.user)
+        qs = Food.objects.filter(owner = request.user)
         serializer_instance = FoodSerializer(qs, many = True)
 
         if serializer_instance.is_valid():
