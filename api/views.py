@@ -93,15 +93,9 @@ class FoodCreateListView(generics.ListCreateAPIView):
         qs = Food.objects.filter(owner = request.user)
         serializer_instance = FoodSerializer(qs, many = True)
 
-        if serializer_instance.is_valid():
+        if serializer_instance:
 
-            try:
-                serializer_instance.save()
-                return Response(serializer_instance.data, status = status.HTTP_200_OK)
-            
-            except IntegrityError:
-                raise ValidationError({"message": "category with this name already exists"})
-              
+            return Response(serializer_instance.data, status = status.HTTP_200_OK)        
         return Response(serializer_instance.error, status = status.HTTP_400_BAD_REQUEST)
 
 
