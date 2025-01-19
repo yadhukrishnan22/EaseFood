@@ -173,6 +173,26 @@ class TableDeleteView(APIView):
         return Response({"message": "Table deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
+class FoodCategoryMenuView(APIView):
+
+    def get(self, request, *args, **kwargs):
+
+        pin = kwargs.get('pin')     
+        try:
+            owner = get_object_or_404(Seller, pin = pin)    
+        except:
+            return Response({"detail":"seller not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        food_category = FoodCategory.objects.filter(owner = owner)
+        food_category_serializer = FoodCategorySerializer(food_category, many=True)
+
+        # tables = Table.objects.filter(owner = owner)
+        # tables_serializer_instance = TableSerializer(tables, many=True)
+
+        return Response({
+            "seller":owner.username, 
+            "food_category":food_category_serializer.data})
 
 
 class FoodMenuView(APIView):
@@ -189,17 +209,35 @@ class FoodMenuView(APIView):
         food_items = Food.objects.filter(owner = owner)
         food_serializer_instance = FoodSerializer(food_items, many=True)
 
-        food_category = FoodCategory.objects.filter(owner = owner)
-        food_category_serializer = FoodCategorySerializer(food_category, many=True)
+        # food_category = FoodCategory.objects.filter(owner = owner)
+        # food_category_serializer = FoodCategorySerializer(food_category, many=True)
+
+        # tables = Table.objects.filter(owner = owner)
+        # tables_serializer_instance = TableSerializer(tables, many=True)
+
+        return Response({
+            "seller":owner.username,
+            "food_items":food_serializer_instance.data
+            })
+
+class TableMenuView(APIView):
+
+    def get(self, request, *args, **kwargs):
+
+        pin = kwargs.get('pin')
+        
+        try:
+            owner = get_object_or_404(Seller, pin = pin)    
+        except:
+            return Response({"detail":"seller not found"}, status=status.HTTP_400_BAD_REQUEST)
 
         tables = Table.objects.filter(owner = owner)
         tables_serializer_instance = TableSerializer(tables, many=True)
 
         return Response({
-            "seller":owner.username,
-            "food_items":food_serializer_instance.data, 
-            "food_category":food_category_serializer.data,
+            "seller":owner.username,            
             "tables":tables_serializer_instance.data})
+
 
 
 

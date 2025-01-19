@@ -33,7 +33,9 @@ urlpatterns = [
     path('api/table/add', views.TableCreateListView.as_view()),
     path('api/table/<int:table_id>/change/', views.TableUpdateView.as_view()),
     path('api/table/<int:table_id>/delete/', views.TableDeleteView.as_view()),
-    path('api/menu/<str:pin>/', views.FoodMenuView.as_view(), name='food_menu_api')
+    path('api/menu/<str:pin>/food/', views.FoodMenuView.as_view(), name='food_menu_api'),
+    path('api/menu/<str:pin>/table/', views.TableMenuView.as_view(), name='table-menu'),
+    path('api/menu/<str:pin>/category/', views.FoodCategoryMenuView.as_view(), name='food-category-menu')
 
    
 ]
