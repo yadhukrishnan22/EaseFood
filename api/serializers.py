@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from api.models import Seller,  FoodCategory, Food, Table,Cart
+from api.models import Seller,  FoodCategory, Food, Table
 from rest_framework import serializers
 
 
