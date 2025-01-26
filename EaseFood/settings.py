@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True 
-CSRF_TRUSTED_ORIGINS=["https://easefood.onrender.com"]
+CSRF_TRUSTED_ORIGINS=['*']
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
