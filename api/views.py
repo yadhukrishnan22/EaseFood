@@ -38,6 +38,7 @@ class SignInView(APIView):
                 'access_token': access_token,
                 'refresh_token': str(refresh),
                 'user': user.username,
+                'pin':user.pin,
                 'message': 'Login successfull'
             }, status=status.HTTP_200_OK)
 
@@ -219,6 +220,7 @@ class FoodMenuView(APIView):
             "seller":owner.username,
             "food_items":food_serializer_instance.data
             })
+    
 
 class TableMenuView(APIView):
 

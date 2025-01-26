@@ -16,11 +16,25 @@ class SellerManager(BaseUserManager):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
+        extra_fields.setdefault('is_active', True) 
         user = self.model(email=email, username=username, **extra_fields)
         user.set_password(password) 
         user.save(using=self._db)
         return user
 
+    def create_superuser(self, email, username, password=None, **extra_fields):
+            """
+            Create and return a superuser with the given email and password.
+            """
+            extra_fields.setdefault('is_staff', True)  # Required for superuser
+            extra_fields.setdefault('is_superuser', True)  # Required for superuser
+
+            if extra_fields.get('is_staff') is not True:
+                raise ValueError("Superuser must have is_staff=True.")
+            if extra_fields.get('is_superuser') is not True:
+                raise ValueError("Superuser must have is_superuser=True.")
+
+            return self.create_user(email, username, password, **extra_fields)
 
 
 class BaseModel(models.Model):
@@ -57,8 +71,8 @@ class Seller(BaseModel, AbstractUser):
     def generate_unique_pin(self):
         return str(random.randint(100000, 999999))
     
-    def __str__(self):
-        return self.user.username
+    # def __str__(self):
+    #     return self.user.username
 
 
 class SellerAccount(BaseModel):
@@ -113,9 +127,19 @@ class Table(models.Model):
     table_number = models.IntegerField(unique=True)
     is_occupied = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"Table {self.table_number} at {self.restaurant.name}"
+    # def __str__(self):
+    #     return f"Table {self.table_number} at {self.restaurant.name}"
 
+
+# class Cart(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     food_category = models.ForeignKey(FoodCategory,on_delete=models.CASCADE)
+#     food = models.ForeignKey(Food,on_delete=models.CASCADE)
+#     table_number = models.ForeignKey(Table,on_delete=models.CASCADE)
+#     quantity = models.IntegerField(null=True,blank=True)
+
+
+    
 
 
 
