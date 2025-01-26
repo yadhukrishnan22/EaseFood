@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from api.models import Seller,  FoodCategory, Food, Table
+from api.models import Seller,  FoodCategory, Food, Table,Cart
 from rest_framework import serializers
 
 
@@ -85,4 +85,7 @@ class TableSerializer(serializers.ModelSerializer):
         fields = ['id', 'table_number', 'is_occupied', 'owner']
 
 
-
+# class CartSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Cart
+#         fields =  "__all__"
