@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import CreateAPIView
-from api.serializers import UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller, TableSerializer
+from api.serializers import UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller, TableSerializer, CartSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import generics
-from api.models import FoodCategory, Food, Table
+from api.models import FoodCategory, Food, Table, Cart
 from rest_framework import status
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -242,7 +242,45 @@ class TableMenuView(APIView):
 
 
 
+class CartAPIView(APIView):
+    # Get all cart items
+    def get(self, request):
+        carts = Cart.objects.all()
+        serializer = CartSerializer(carts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    # Add a new item to the cart
+    def post(self, request):
+        serializer = CartSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Update a cart item
+    def put(self, request, pk, *args, **kwargs):
+        # Get the existing Cart object
+        cart_instance = get_object_or_404(Cart, pk=pk)
+        serializer = CartSerializer(cart_instance, data=request.data, partial=False)
+        
+        if serializer.is_valid():
+            serializer.save()
+            # Refresh the instance to get updated related fields like food_name
+            cart_instance.refresh_from_db()
+            updated_serializer = CartSerializer(cart_instance)
+            return Response(updated_serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete a cart item
+    def delete(self, request, pk):
+        try:
+            cart_item = Cart.objects.get(pk=pk)
+        except Cart.DoesNotExist:
+            return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        cart_item.delete()
+        return Response({"message": "Cart item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 
