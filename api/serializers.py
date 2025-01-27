@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from api.models import Seller,  FoodCategory, Food, Table
+from api.models import Seller,  FoodCategory, Food, Table, Cart
 from rest_framework import serializers
 
 
@@ -85,7 +85,27 @@ class TableSerializer(serializers.ModelSerializer):
         fields = ['id', 'table_number', 'is_occupied', 'owner']
 
 
-# class CartSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Cart
-#         fields =  "__all__"
+class CartSerializer(serializers.ModelSerializer):
+    food_categories = serializers.CharField(source='food_category.food_category_name', read_only=True)
+    foods = serializers.CharField(source='food.food_name', read_only=True)
+    total_price = serializers.SerializerMethodField()  # Dynamically calculate total price
+    preparation_time = serializers.SerializerMethodField()
+
+    food_category = serializers.PrimaryKeyRelatedField(queryset=FoodCategory.objects.all())
+    food = serializers.PrimaryKeyRelatedField(queryset=Food.objects.all())
+    food_price = serializers.PrimaryKeyRelatedField(queryset=Food.objects.all())
+    table_number = serializers.PrimaryKeyRelatedField(queryset=Table.objects.all())
+
+    class Meta:
+        model = Cart
+        fields =  ['id', 'food_categories', 'foods', 'table_number', 'quantity','preparation_time', 'status','total_price', 'food', 'food_category','food_price']
+        
+    def get_total_price(self, obj):
+        # Ensure that food_price and quantity are valid before calculating
+        if obj.food_price and obj.quantity:
+            return obj.food_price.price * obj.quantity
+        return 0  # Default to 0 if either value is missing
+    
+    def get_preparation_time(self, obj):
+        # Return the preparation time of the associated food
+        return obj.food.time_taken if obj.food else None

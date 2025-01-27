@@ -131,12 +131,15 @@ class Table(models.Model):
     #     return f"Table {self.table_number} at {self.restaurant.name}"
 
 
-# class Cart(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     food_category = models.ForeignKey(FoodCategory,on_delete=models.CASCADE)
-#     food = models.ForeignKey(Food,on_delete=models.CASCADE)
-#     table_number = models.ForeignKey(Table,on_delete=models.CASCADE)
-#     quantity = models.IntegerField(null=True,blank=True)
+class Cart(models.Model):
+    id = models.AutoField(primary_key=True)
+    food_category = models.ForeignKey(FoodCategory,on_delete=models.CASCADE, null=True)
+    food = models.ForeignKey(Food,on_delete=models.CASCADE, null=True)
+    food_price = models.ForeignKey(Food,on_delete=models.CASCADE,null=True, related_name='food_price')
+    table_number = models.ForeignKey(Table,on_delete=models.CASCADE, null=True)
+    quantity = models.IntegerField(null=True,blank=True)
+    prep_time = models.ForeignKey(Food,on_delete=models.CASCADE,null=True,related_name='preparation_time')
+    status = models.CharField(max_length=50,choices=[('pending','Pending'),('delivered','Delivered')],null=True)
 
 
     
