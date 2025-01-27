@@ -40,6 +40,7 @@ class SignInView(APIView):
                 'refresh_token': str(refresh),
                 'user': user.username,
                 'pin':user.pin,
+                'owner':user.id,
                 'message': 'Login successfull'
             }, status=status.HTTP_200_OK)
 
