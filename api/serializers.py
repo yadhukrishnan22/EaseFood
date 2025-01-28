@@ -86,24 +86,58 @@ class TableSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    food_categories = serializers.CharField(source='food_category.food_category_name', read_only=True)
-    foods = serializers.CharField(source='food.food_name', read_only=True)
+    food_categories = serializers.CharField(source='food_category.food_category_name')
+    food = serializers.CharField(source='food.food_name')
     total_price = serializers.SerializerMethodField()  # Dynamically calculate total price
     preparation_time = serializers.SerializerMethodField()
 
-    food_category = serializers.PrimaryKeyRelatedField(queryset=FoodCategory.objects.all())
-    food = serializers.PrimaryKeyRelatedField(queryset=Food.objects.all())
-    food_price = serializers.PrimaryKeyRelatedField(queryset=Food.objects.all())
-    table_number = serializers.PrimaryKeyRelatedField(queryset=Table.objects.all())
-
     class Meta:
         model = Cart
-        fields =  ['id', 'food_categories', 'foods', 'table_number', 'quantity','preparation_time', 'status','total_price', 'food', 'food_category','food_price']
-        
+        fields =  ['id', 'food_categories', 'food', 'table_number', 'quantity','preparation_time', 'status','total_price']
+
+    def create(self, validated_data):
+        # Extract nested data for related models
+        food_category_name = validated_data.pop('food_category')['food_category_name']
+        food_name = validated_data.pop('food')['food_name']
+
+        # Retrieve related objects
+        food_category = FoodCategory.objects.get(food_category_name=food_category_name)
+        food = Food.objects.get(food_name=food_name)
+
+        # Create the Cart instance
+        cart = Cart.objects.create(
+            food_category=food_category,
+            food=food,
+            **validated_data
+        )
+        return cart
+    
+    def update(self, instance, validated_data):
+        # Extract nested fields
+        food_category_data = validated_data.pop('food_category', None)
+        food_data = validated_data.pop('food', None)
+
+        # Update food_category if provided
+        if food_category_data:
+            food_category_name = food_category_data.get('food_category_name')
+            instance.food_category = FoodCategory.objects.get(food_category_name=food_category_name)
+
+        # Update food if provided
+        if food_data:
+            food_name = food_data.get('food_name')
+            instance.food = Food.objects.get(food_name=food_name)
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
     def get_total_price(self, obj):
         # Ensure that food_price and quantity are valid before calculating
-        if obj.food_price and obj.quantity:
-            return obj.food_price.price * obj.quantity
+        if obj.food and obj.quantity:
+            return obj.food.price * obj.quantity
         return 0  # Default to 0 if either value is missing
     
     def get_preparation_time(self, obj):
