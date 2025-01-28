@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import CreateAPIView
-from api.serializers import UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller, TableSerializer, CartSerializer
+from api.serializers import (UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller,
+                              TableSerializer, CartSerializer)
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -283,6 +284,7 @@ class CartAPIView(APIView):
 
         cart_item.delete()
         return Response({"message": "Cart item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
 
 
 
