@@ -86,27 +86,22 @@ class TableSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    food_categories = serializers.CharField(source='food_category.food_category_name')
     food = serializers.CharField(source='food.food_name')
     total_price = serializers.SerializerMethodField()  # Dynamically calculate total price
-    preparation_time = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields =  ['id', 'food_categories', 'food', 'table_number', 'quantity','preparation_time', 'status','total_price']
+        fields =  ['id', 'food', 'quantity', 'total_price']
 
     def create(self, validated_data):
         # Extract nested data for related models
-        food_category_name = validated_data.pop('food_category')['food_category_name']
         food_name = validated_data.pop('food')['food_name']
 
         # Retrieve related objects
-        food_category = FoodCategory.objects.get(food_category_name=food_category_name)
         food = Food.objects.get(food_name=food_name)
 
         # Create the Cart instance
         cart = Cart.objects.create(
-            food_category=food_category,
             food=food,
             **validated_data
         )
@@ -114,13 +109,7 @@ class CartSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         # Extract nested fields
-        food_category_data = validated_data.pop('food_category', None)
         food_data = validated_data.pop('food', None)
-
-        # Update food_category if provided
-        if food_category_data:
-            food_category_name = food_category_data.get('food_category_name')
-            instance.food_category = FoodCategory.objects.get(food_category_name=food_category_name)
 
         # Update food if provided
         if food_data:
@@ -140,6 +129,9 @@ class CartSerializer(serializers.ModelSerializer):
             return obj.food.price * obj.quantity
         return 0  # Default to 0 if either value is missing
     
-    def get_preparation_time(self, obj):
-        # Return the preparation time of the associated food
-        return obj.food.time_taken if obj.food else None
+
+# class CheckoutSerializer(serializers.ModelSerializer):
+   
+#     class Meta:
+#         model = Checkout
+#         fields =  "__all__"

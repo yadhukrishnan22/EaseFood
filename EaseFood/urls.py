@@ -29,18 +29,26 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/signup/', views.SignUpView.as_view() ),
     path('api/signin/', views.SignInView.as_view(), name='signin'),
+
     path('api/foodcat/', views.FoodCategoryCreateView.as_view()),
     path('api/foodcat/<int:pk>/', views.FoodCategoryRetrieveUpdateDestroyView.as_view()),
+
     path('api/food/', views.FoodCreateListView.as_view()),
     path('api/food/<int:pk>/', views.FoodRetrieveUpdateDestroyView.as_view()),
+
     path('api/table/add', views.TableCreateListView.as_view()),
     path('api/table/<int:table_id>/change/', views.TableUpdateView.as_view()),
     path('api/table/<int:table_id>/delete/', views.TableDeleteView.as_view()),
+
     path('api/menu/<str:pin>/food/', views.FoodMenuView.as_view(), name='food_menu_api'),
     path('api/menu/<str:pin>/table/', views.TableMenuView.as_view(), name='table-menu'),
     path('api/menu/<str:pin>/category/', views.FoodCategoryMenuView.as_view(), name='food-category-menu'),
+
     path('api/cart/', views.CartAPIView.as_view(), name='cart'),
     path('api/cart/<int:pk>/', views.CartAPIView.as_view(), name='cart-update'),
+
+    # path('checkout/create/', views.CreateCheckoutAPIView.as_view(), name='create-checkout'),
+    # path('checkout/<int:pk>/', views.RetrieveCheckoutAPIView.as_view(), name='retrieve-checkout'),
 
    
 ]
