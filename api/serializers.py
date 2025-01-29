@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from api.models import Seller,  FoodCategory, Food, Table, Cart
+from api.models import Seller,  FoodCategory, Food, Table, Cart, Checkout
 from rest_framework import serializers
 
 
@@ -130,8 +130,17 @@ class CartSerializer(serializers.ModelSerializer):
     #     return 0  # Default to 0 if either value is missing
     
 
-# class CheckoutSerializer(serializers.ModelSerializer):
+class CheckoutSerializer(serializers.ModelSerializer):
+    items = serializers.CharField(source='cart.food')
+    prep_time = serializers.IntegerField(source='food.time_taken')
+    total_price = serializers.SerializerMethodField()
    
-#     class Meta:
-#         model = Checkout
-#         fields =  "__all__"
+    class Meta:
+        model = Checkout
+        fields = ['id','table_number', 'items', 'prep_time', 'total_price']
+
+    def get_total_price(self, obj):
+        # Ensure that food_price and quantity are valid before calculating
+        if obj.food and obj.quantity:
+            return obj.food.price * obj.quantity
+        return 0  # Default to 0 if either value is missing

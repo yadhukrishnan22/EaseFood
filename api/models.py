@@ -112,7 +112,7 @@ class Food(BaseModel):
     food_category_obj = models.ForeignKey(FoodCategory, on_delete=models.CASCADE)
     owner = models.ForeignKey(Seller, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places= 2)
-    is_available = models.BooleanField()
+    is_available = models.CharField(max_length=50, choices=[('available', 'Available'), ('unavailable', 'Unavailable')])
     time_taken = models.PositiveIntegerField()
 
 
@@ -139,12 +139,10 @@ class Cart(models.Model):
 
 
 class Checkout(models.Model):
-    table_number = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    table_number = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True, related_name='table_no')
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True)
+    food = models.ForeignKey(Food,on_delete=models.CASCADE, null=True)
     
-
-
-
 
 # class Orders(models.Model):
 #     id = models.AutoField(primary_key=True)
