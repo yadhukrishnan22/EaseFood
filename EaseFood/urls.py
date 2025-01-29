@@ -44,8 +44,12 @@ urlpatterns = [
     path('api/menu/<str:pin>/table/', views.TableMenuView.as_view(), name='table-menu'),
     path('api/menu/<str:pin>/category/', views.FoodCategoryMenuView.as_view(), name='food-category-menu'),
 
-    path('api/cart/', views.CartAPIView.as_view(), name='cart'),
+    path('api/cart/<int:table_id>/', views.CartGetAPIView.as_view(), name='cart-get'),
+    path('api/cart/', views.CartAPIView.as_view(), name='cart-save'),
     path('api/cart/<int:pk>/', views.CartAPIView.as_view(), name='cart-update'),
+
+    path('api/cart/update-quantity/', views.UpdateCartQuantityAPIView.as_view(), name='update-quantity'),
+
 
     # path('checkout/create/', views.CreateCheckoutAPIView.as_view(), name='create-checkout'),
     # path('checkout/<int:pk>/', views.RetrieveCheckoutAPIView.as_view(), name='retrieve-checkout'),

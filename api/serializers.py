@@ -87,11 +87,11 @@ class TableSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     food = serializers.CharField(source='food.food_name')
-    total_price = serializers.SerializerMethodField()  # Dynamically calculate total price
+    image = serializers.ImageField(source='food.food_image') 
 
     class Meta:
         model = Cart
-        fields =  ['id', 'food', 'quantity', 'total_price']
+        fields =  ['id', 'food', 'quantity', 'image', 'table_number', 'food_price']
 
     def create(self, validated_data):
         # Extract nested data for related models
@@ -123,11 +123,11 @@ class CartSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def get_total_price(self, obj):
-        # Ensure that food_price and quantity are valid before calculating
-        if obj.food and obj.quantity:
-            return obj.food.price * obj.quantity
-        return 0  # Default to 0 if either value is missing
+    # def get_total_price(self, obj):
+    #     # Ensure that food_price and quantity are valid before calculating
+    #     if obj.food and obj.quantity:
+    #         return obj.food.price * obj.quantity
+    #     return 0  # Default to 0 if either value is missing
     
 
 # class CheckoutSerializer(serializers.ModelSerializer):
