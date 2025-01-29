@@ -132,10 +132,18 @@ class Table(models.Model):
 
 
 class Cart(models.Model):
-    id = models.AutoField(primary_key=True)
     food = models.ForeignKey(Food,on_delete=models.CASCADE, null=True)
     quantity = models.IntegerField(null=True,blank=True)
     food_price = models.ForeignKey(Food,on_delete=models.CASCADE,null=True, related_name='food_price')
+    table_number = models.ForeignKey(Table,on_delete=models.CASCADE, null=True)
+
+
+class Checkout(models.Model):
+    table_number = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+
+
 
 
 # class Orders(models.Model):
@@ -145,20 +153,6 @@ class Cart(models.Model):
 #     prep_time = models.ForeignKey(Food,on_delete=models.CASCADE,null=True,related_name='preparation_time')
 #     total_price = models.ForeignKey(Cart,on_delete=models.CASCADE,null=True, related_name='total_price')
 #     status = models.CharField(max_length=50,choices=[('pending','Pending'),('delivered','Delivered')],null=True)
-
-
-# class Checkout(models.Model):
-#     table_number = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True)
-#     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-#     payment_status = models.CharField(
-#         max_length=50,
-#         choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')],
-#         default='pending'
-#     )
-#     transaction_id = models.CharField(max_length=100, null=True, blank=True)
-#     payment_date = models.DateTimeField(auto_now_add=True)
-
-
 
 
 

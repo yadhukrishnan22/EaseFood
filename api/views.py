@@ -245,13 +245,15 @@ class TableMenuView(APIView):
 
 
 
-class CartAPIView(APIView):
+class CartGetAPIView(APIView):
     # Get all cart items
-    def get(self, request):
-        carts = Cart.objects.all()
+    def get(self, request,table_id):
+        id = Table.objects.get(id=table_id)
+        carts = Cart.objects.filter(table_number=id)
         serializer = CartSerializer(carts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    
+class CartAPIView(APIView):
     # Add a new item to the cart
     def post(self, request):
         serializer = CartSerializer(data=request.data)
@@ -286,6 +288,37 @@ class CartAPIView(APIView):
         return Response({"message": "Cart item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
 
+class UpdateCartQuantityAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+    
+        cart_id = request.data.get("cart_id")
+        action = request.data.get("action")
+
+        try:
+            cart_item = Cart.objects.get(id=cart_id)
+
+            if action == "+":
+                cart_item.quantity += 1
+                cart_item.save()
+            
+            elif action == "-":
+                if cart_item.quantity > 1:
+                    cart_item.quantity -= 1
+                    cart_item.save()
+                else:
+                    cart_item.delete()  # Remove item if quantity reaches 0
+                    return Response({"message": "Item removed from cart"}, status=status.HTTP_200_OK)
+
+            return Response({
+                "cart_id": cart_item.id,
+                "new_quantity": cart_item.quantity
+            }, status=status.HTTP_200_OK)
+
+        except Cart.DoesNotExist:
+            return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
     
