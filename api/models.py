@@ -139,9 +139,18 @@ class Cart(models.Model):
 
 
 class Checkout(models.Model):
-    table_number = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True, related_name='table_no')
-    cart = models.ForeignKey(Cart,on_delete=models.CASCADE, null=True)
-    food = models.ForeignKey(Food,on_delete=models.CASCADE, null=True)
+    cart = models.ManyToManyField(Cart)  # Store multiple cart items in a checkout
+
+    def __str__(self):
+        return f"Checkout for Table {self.get_table_number()}"  
+
+    def get_table_number(self):
+        """
+        Get the table number from any cart item (assuming all belong to the same table).
+        """
+        cart_item = self.cart.first()  # Get the first cart item
+        return cart_item.table_number.table_number if cart_item else None  # Return table number
+
     
 
 # class Orders(models.Model):

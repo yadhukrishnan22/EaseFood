@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import CreateAPIView
 from api.serializers import (UserSerilizer, SignInSerializer, FoodCategorySerializer, FoodSerializer, Seller,
-                              TableSerializer, CartSerializer)
+                              TableSerializer, CartSerializer, CheckoutSerializer)
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import generics
-from api.models import FoodCategory, Food, Table, Cart
+from api.models import FoodCategory, Food, Table, Cart, Checkout
 from rest_framework import status
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -321,5 +321,55 @@ class UpdateCartQuantityAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-    
+class CheckoutListCreateView(APIView):
+    """
+    View to list all checkouts or create a new checkout.
+    """
+    def get(self, request):
+        checkouts = Checkout.objects.all()
+        serializer = CheckoutSerializer(checkouts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """
+        Create a new checkout instance.
+        - Retrieves cart items for the table.
+        - Links the cart items to the checkout.
+        - Returns the checkout details.
+        """
+        table_number = request.data.get("table_number")  # Get table number from request
+
+        # Get all cart items linked to this table
+        cart_items = Cart.objects.filter(table_number__table_number=table_number)
+
+        if not cart_items.exists():
+            return Response({"error": "No cart items found for this table."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create checkout instance and link cart items
+        checkout = Checkout.objects.create()
+        checkout.cart.set(cart_items)  # Add cart items to checkout
+
+        serializer = CheckoutSerializer(checkout)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CheckoutDetailView(APIView):
+    """
+    View to retrieve or delete a checkout instance.
+    """
+    def get(self, request, pk):
+        """
+        Retrieve a single checkout by ID.
+        """
+        checkout = get_object_or_404(Checkout, id=pk)
+        serializer = CheckoutSerializer(checkout)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        """
+        Delete a checkout instance.
+        """
+        checkout = get_object_or_404(Checkout, id=pk)
+        checkout.delete()
+        return Response({"message": "Checkout deleted successfully."}, status=status.HTTP_204_NO_CONTENT)   
 

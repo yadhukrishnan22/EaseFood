@@ -50,6 +50,11 @@ urlpatterns = [
 
     path('api/cart/update-quantity/', views.UpdateCartQuantityAPIView.as_view(), name='update-quantity'),
 
+    path('api/checkout/', views.CheckoutListCreateView.as_view(), name='checkout'),
+    path('api/checkout/<int:pk>/', views.CheckoutDetailView.as_view(), name='checkout-update'),
+
+
+
 
     # path('checkout/create/', views.CreateCheckoutAPIView.as_view(), name='create-checkout'),
     # path('checkout/<int:pk>/', views.RetrieveCheckoutAPIView.as_view(), name='retrieve-checkout'),
