@@ -88,6 +88,8 @@ class TableSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     food = serializers.CharField(source='food.food_name')
     image = serializers.ImageField(source='food.food_image') 
+    table_number = serializers.IntegerField(source="table_number.table_number", read_only=True)
+    food_price = serializers.DecimalField(source='food.price',max_digits=10, decimal_places= 2)
 
     class Meta:
         model = Cart
@@ -131,16 +133,37 @@ class CartSerializer(serializers.ModelSerializer):
     
 
 class CheckoutSerializer(serializers.ModelSerializer):
-    items = serializers.CharField(source='cart.food')
-    prep_time = serializers.IntegerField(source='food.time_taken')
+    table_number = serializers.SerializerMethodField()
+    items = serializers.SerializerMethodField()
+    prep_time = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
-   
+
     class Meta:
         model = Checkout
-        fields = ['id','table_number', 'items', 'prep_time', 'total_price']
+        fields = ['id', 'table_number', 'items', 'prep_time', 'total_price']
+
+    def get_table_number(self, obj):
+        """
+        Retrieves the table number from the first cart item.
+        """
+        cart_item = obj.cart.first()  # Get any cart item
+        return cart_item.table_number.table_number if cart_item else None
+
+    def get_items(self, obj):
+        """
+        Returns a list of food item names from the cart.
+        """
+        return [cart_item.food.food_name for cart_item in obj.cart.all()]
+
+    def get_prep_time(self, obj):
+        """
+        Returns the highest preparation time among all food items in the cart.
+        """
+        times = [cart_item.food.time_taken for cart_item in obj.cart.all() if cart_item.food and cart_item.food.time_taken]
+        return max(times) if times else 0  # Return highest prep time or 0 if empty
 
     def get_total_price(self, obj):
-        # Ensure that food_price and quantity are valid before calculating
-        if obj.food and obj.quantity:
-            return obj.food.price * obj.quantity
-        return 0  # Default to 0 if either value is missing
+        """
+        Returns the total price of all items in the cart.
+        """
+        return sum(cart_item.food.price * cart_item.quantity for cart_item in obj.cart.all() if cart_item.food and cart_item.quantity)
